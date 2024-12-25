@@ -1,0 +1,29 @@
+name: Deploy to InfinityFree
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Update VERSION.txt
+        run: |
+          echo "Branch: ${{ github.ref_name }}" > VERSION.txt
+          echo "Commit: ${{ github.sha }}" >> VERSION.txt
+          echo "Commit Message: ${{ github.event.head_commit.message }}" >> VERSION.txt
+
+      - name: Deploy to InfinityFree FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: . # Путь в репозитории
+          server-dir: /htdocs # Папка на сервере
